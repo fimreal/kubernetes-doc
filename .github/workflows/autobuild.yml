@@ -36,7 +36,8 @@ jobs:
         run: docker login --username=${{ secrets.QCLOUDUSERNAME }} ccr.ccs.tencentyun.com -p ${{ secrets.QCLOUDPASSWORD }}
       - name: docker build
         run: |
-           cd website && docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<< 'FROM caddy:alpine\nCOPY public/ /usr/share/caddy'
+           cd website && docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<< "FROM caddy:alpine
+           COPY public/ /usr/share/caddy"
 #          docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<EOF
 #FROM caddy:alpine
 #COPY public/ /usr/share/caddy 
