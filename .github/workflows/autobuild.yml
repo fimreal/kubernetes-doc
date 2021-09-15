@@ -1,0 +1,45 @@
+name: docker build kuubernetes.io website
+
+on:
+  push:
+    branches:
+      - main  # Set a branch to deploy
+  pull_request:
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v2
+        with:
+          hugo-version: 'latest'
+          extended: true
+
+      - name: git clone kubernetes/website
+        run: git clone https://github.com/kubernetes/website.git
+
+      - name: install hugo theme
+        run: cd website && git submodule update --init --recursive --depth 1
+      - name: npm install
+        run: npm ci
+      - name: hugo build
+        run: hugo
+
+      - name: docker login
+        run: docker login --username=${{ secrets.QCLOUDUSERNAME }} ccr.ccs.tencentyun.com -p ${{ secrets.QCLOUDPASSWORD }}
+      - name: docker build
+        run: |
+          docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<EOF
+FROM caddy:alpine
+COPY public/ /usr/share/caddy 
+EOF
+      - name: docker login
+        run: docker push ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest
+
