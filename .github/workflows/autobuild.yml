@@ -28,20 +28,28 @@ jobs:
       - name: install hugo theme
         run: cd website && git submodule update --init --recursive --depth 1
       - name: npm install
-        run: cd website && npm ci && pwd && ls 
+        run: cd website && npm ci
       - name: hugo build
-        run: cd website && hugo && pwd && ls 
+        run: cd website && hugo
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}     # see https://github.com/marketplace/actions/github-pages-action#github-actions-for-github-pages
+          publish_dir: ./website/public
+          keep_files: false
+          publish_branch: qcloud-webify
 
-      - name: docker login
-        run: docker login --username=${{ secrets.QCLOUDUSERNAME }} ccr.ccs.tencentyun.com -p ${{ secrets.QCLOUDPASSWORD }}
-      - name: docker build
-        run: |
-          docker build website -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<< "FROM caddy:alpine
-           COPY public /usr/share/caddy"
-#          docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<EOF
-#FROM caddy:alpine
-#COPY public/ /usr/share/caddy 
-#EOF
-      - name: docker login
-        run: docker push ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest
+#       - name: docker login
+#         run: docker login --username=${{ secrets.QCLOUDUSERNAME }} ccr.ccs.tencentyun.com -p ${{ secrets.QCLOUDPASSWORD }}
+#       - name: docker build
+#         run: |
+#           docker build website -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<< "FROM caddy:alpine
+#            COPY public /usr/share/caddy"
+# #          docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<EOF
+# #FROM caddy:alpine
+# #COPY public/ /usr/share/caddy 
+# #EOF
+#       - name: docker login
+#         run: docker push ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest
 
