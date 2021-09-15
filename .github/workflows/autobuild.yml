@@ -28,15 +28,15 @@ jobs:
       - name: install hugo theme
         run: cd website && git submodule update --init --recursive --depth 1
       - name: npm install
-        run: cd website && npm ci
+        run: cd website && npm ci && pwd && ls 
       - name: hugo build
-        run: cd website && hugo
+        run: cd website && hugo && pwd && ls 
 
       - name: docker login
         run: docker login --username=${{ secrets.QCLOUDUSERNAME }} ccr.ccs.tencentyun.com -p ${{ secrets.QCLOUDPASSWORD }}
       - name: docker build
         run: |
-           cd website && docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<< "FROM caddy:alpine
+           cd website && pwd && ls && docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<< "FROM caddy:alpine
            COPY public/ /usr/share/caddy"
 #          docker build . -t ccr.ccs.tencentyun.com/auto_build/kubernetes.io:latest -f - <<EOF
 #FROM caddy:alpine
